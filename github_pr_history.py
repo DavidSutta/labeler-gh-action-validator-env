@@ -1,27 +1,35 @@
+from dataclasses import dataclass
 import requests
 import json
+import argparse
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
-# Constants
-TOKEN = ""
-REPO_OWNER = ""
-REPO_NAME = ""
-BASE_API_URL = "https://api.github.com/repos"
-HEADERS = {
-    "Authorization": f"token {TOKEN}",
-    "Accept": "application/json",
-}
-PER_PAGE=100 # MAX: 100!
-HOW_MANY_PAGES=5
+@dataclass
+class GitHubConnection:
+    gh_token: str
+    repo_owner: str
+    repo_name: str
+    base_api_url:str
 
-def get_pr_ids() -> list[str]:
+    def __post_init__(self):
+        self.HEADERS: dict = {
+            "Authorization": f"token {self.gh_token}",
+            "Accept": "application/json"
+        }
+
+@dataclass
+class PaginationData:
+    per_page: int
+    number_of_pages: int
+
+def get_pr_ids(conn_object: GitHubConnection, pagination_data: PaginationData) -> list[str]:
     pr_ids: list[str] = list()
 
-    for i in range(1, HOW_MANY_PAGES):
-        url = f"{BASE_API_URL}/{REPO_OWNER}/{REPO_NAME}/pulls"
-        response = requests.get(url, headers=HEADERS, verify=False, 
+    for i in range(1, pagination_data.number_of_pages):
+        url = f"{conn_object.base_api_url}/{conn_object.repo_owner}/{conn_object.repo_name}/pulls"
+        response = requests.get(url, headers=conn_object.HEADERS, verify=False, 
                                 params={"state": "all",
-                                        "per_page": PER_PAGE,
+                                        "per_page": pagination_data.per_page,
                                         "page": i
                                         })
         if response.ok:
@@ -31,9 +39,9 @@ def get_pr_ids() -> list[str]:
 
     return pr_ids
 
-def get_modified_files_in_pr(pr_number: str) -> list[str]:
-    url = f"{BASE_API_URL}/{REPO_OWNER}/{REPO_NAME}/pulls/{pr_number}/files"
-    response = requests.get(url, headers=HEADERS, verify=False)
+def get_modified_files_in_pr(conn_obj: GitHubConnection, pr_number: str) -> list[str]:
+    url = f"{conn_obj.base_api_url}/{conn_obj.repo_owner}/{conn_obj.repo_name}/pulls/{pr_number}/files"
+    response = requests.get(url, headers=conn_obj.HEADERS, verify=False)
     if response.status_code == 200:
         files = [file["filename"] for file in response.json()]
         return files
@@ -41,13 +49,29 @@ def get_modified_files_in_pr(pr_number: str) -> list[str]:
         print(f"Failed to fetch files for PR #{pr_number}: {response.status_code}")
         return []
 
+def parse_args():
+    parser = argparse.ArgumentParser()
+    
+    parser.add_argument("--gh-token", type=str, required=True, action="store")
+    parser.add_argument("--repo-owner", type=str, required=True, action="store")
+    parser.add_argument("--repo-name", type=str, required=True, action="store")
+    parser.add_argument("--gh-api-baseurl", type=str, required=True, action="store")
+    parser.add_argument("--pr-history-per-page", type=int, default=100, action="store")
+    parser.add_argument("--pr-history-number-of-pages", type=int, default=1, action="store")
+
+    return parser.parse_args()
+
 if __name__ == "__main__":
-    pr_numbers = get_pr_ids()
+    args = parse_args()
+    gh_connection = GitHubConnection(args.gh_token, args.repo_owner, args.repo_name, args.gh_api_baseurl)
+    pagination_data = PaginationData(args.pr_history_per_page, args.pr_history_number_of_pages)
+    pr_numbers = get_pr_ids(gh_connection, pagination_data)
+    
     changed_files_by_pr: dict = {}
 
     for pr in pr_numbers:
         print(f"Pull Request #{pr}:")
-        files = get_modified_files_in_pr(pr)
+        files = get_modified_files_in_pr(gh_connection, pr)
         pr_info = {pr:
                    {'files': files, 
                     'expected_labels': ['tests-needed']}
