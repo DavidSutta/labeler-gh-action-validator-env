@@ -1,0 +1,3 @@
+[submodule "labeler_v5"]
+	path = labeler_v5
+	url = https://github.com/actions/labeler.git
