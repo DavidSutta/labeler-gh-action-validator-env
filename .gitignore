@@ -19,3 +19,4 @@ pr_statistics.json
 
 .venv
 /poetry.toml
+node_modules
