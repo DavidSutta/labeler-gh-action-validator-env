@@ -7,8 +7,5 @@ module.exports = {
     '^.+\\.ts$': 'ts-jest'
   },
   verbose: true,
-  rootDir: '/workspaces/labeler-gh-action-validator-env',
-  moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/labeler_v5/$1'
-  }
+  rootDir: '/workspaces/labeler-gh-action-validator-env'
 }
