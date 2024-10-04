@@ -24,7 +24,8 @@
 				"ms-python.debugpy",
 				"ms-python.vscode-pylance",
 				"ms-python.python",
-				"ms-azuretools.vscode-docker"
+				"ms-azuretools.vscode-docker",
+				"george-alisson.html-preview-vscode"
 			],
 			"settings": {
 				"terminal.integrated.defaultProfile.linux": "bash"

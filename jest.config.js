@@ -7,5 +7,13 @@ module.exports = {
     '^.+\\.ts$': 'ts-jest'
   },
   verbose: true,
-  rootDir: '/workspaces/labeler-gh-action-validator-env'
+  rootDir: '/workspaces/labeler-gh-action-validator-env',
+  reporters: [
+    "default",
+	  ["./node_modules/jest-html-reporter", {
+		"pageTitle": "Test Report",
+    "includeFailureMsg": true,
+    "includeConsoleLog": true
+	  }]
+  ]
 }
