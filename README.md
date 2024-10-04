@@ -1,7 +1,7 @@
 # GitHub Labeler Action Validation Tool for PR Histories
 
 This repository provides tools for generating statistics on modified files in a GitHub repository's pull requests and validating if the [GitHub labeler action](https://github.com/actions/labeler?tab=readme-ov-file#pull-request-labeler) would correctly assign the expected labels based on the user's custom ruleset (labeler configuration).
-Currently support release [v5.0.0](https://github.com/actions/labeler/releases/tag/v5.0.0) of the GitHub action
+Currently supported release is [v5.0.0](https://github.com/actions/labeler/releases/tag/v5.0.0) of the GitHub action.
 
 ## Prerequisites
 
