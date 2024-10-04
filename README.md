@@ -1,6 +1,7 @@
 # GitHub Labeler Action Validation Tool for PR Histories
 
-This repository provides tools for generating statistics on modified files in a GitHub repository's pull requests and validating if the GitHub labeler action  would correctly assign the expected labels based on the user's custom ruleset (labeler configuration).
+This repository provides tools for generating statistics on modified files in a GitHub repository's pull requests and validating if the [GitHub labeler action](https://github.com/actions/labeler?tab=readme-ov-file#pull-request-labeler) would correctly assign the expected labels based on the user's custom ruleset (labeler configuration).
+Currently support release [v5.0.0](https://github.com/actions/labeler/releases/tag/v5.0.0) of the GitHub action
 
 ## Prerequisites
 
@@ -46,7 +47,23 @@ python github_pr_history.py --gh-token <your-token> \
 ### 4. Manually Edit PR Statistics
 After running the script, a file named `pr_statistics.json` will be generated. You will need to manually fill in the `expected_labels` for each pull request in the file.
 
-### 5. Run Tests
+### 5. Add Labeler Configuration
+
+Create a labeler configuration file in the root of the project and name it `labeler-rules.yml`. Or copy the one you have in your live CI system.
+
+#### Example content:
+```yaml
+label-to-be-applied:
+  - any:
+      - changed-files:
+          - all-globs-to-any-file:
+              - '!**/*.{txt,md,html,scss,svg}'
+              - '{server}/**'
+          - any-glob-to-any-file:
+              - 'pom.xml'
+```
+
+### 6. Run Tests
 Once the `expected_labels` have been added to the `pr_statistics.json` file, you can run the Jest tests to validate whether the labeler GitHub action would assign the correct labels.
 
 To run the tests:
