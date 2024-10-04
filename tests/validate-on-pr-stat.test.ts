@@ -8,24 +8,15 @@ jest.mock('@actions/github');
 
 const gh = github.getOctokit('_');
 const setLabelsMock = jest.spyOn(gh.rest.issues, 'setLabels');
-// const getPullMock = jest.spyOn(gh.rest.pulls, 'get');
 const paginateMock = jest.spyOn(gh, 'paginate');
-// const setOutputSpy = jest.spyOn(core, 'setOutput');
 const reposMock = jest.spyOn(gh.rest.repos, 'getContent');
 
-// const configureInput = (
-//   mockInput: Partial<{
-//   'repo-token': string;
-//   'configuration-path': string;
-//   'sync-labels': boolean;
-//   'pr-number': string[];
-// }>) => {
-//   jest.spyOn(core, 'getInput').mockImplementation((name: string) => mockInput[name] as string);
-//   jest.spyOn(core, 'getMultilineInput').mockImplementation((name: string) => mockInput[name] as string[]);
-//   jest.spyOn(core, 'getBooleanInput').mockImplementation((name: string) => mockInput[name] as boolean);
-// };
+afterEach(() => jest.restoreAllMocks());
 
-afterAll(() => jest.restoreAllMocks());
+function mockGitHubResponseChangedFiles(files: string[]): void {
+  const returnValue = files.map(f => ({filename: f}));
+  paginateMock.mockReturnValue(<any>returnValue);
+}
 
 interface PRStatistic {
   files: string[];
@@ -37,7 +28,7 @@ interface PRStatistics {
 }
 
 const jsonStat: PRStatistics = JSON.parse(fs.readFileSync('pr_statistics.json', 'utf-8'));
-const labelerConfig = fs.readFileSync('custom.yml');
+const labelerConfig = fs.readFileSync('labeler-rules.yml');
 
 const testCases = Object.entries(jsonStat).map(([pr_id, data]) => [
   pr_id,
@@ -45,12 +36,10 @@ const testCases = Object.entries(jsonStat).map(([pr_id, data]) => [
   data['expected_labels']
 ]);
 
-describe('test_parametrized', () => {
+describe('Parametrized test cases for all entries in pr_statistics.json', () => {
   test.each(testCases)(
     "Test case for PR #%s",
     async (prNumber,changedFiles,expectedLabels) => {
-
-      // configureInput({});
 
       reposMock.mockResolvedValue(<any>{
         data: { content: labelerConfig, encoding: 'utf8' }
@@ -77,8 +66,3 @@ describe('test_parametrized', () => {
     }
   );
 });
-
-function mockGitHubResponseChangedFiles(files: string[]): void {
-  const returnValue = files.map(f => ({filename: f}));
-  paginateMock.mockReturnValue(<any>returnValue);
-}
