@@ -3,6 +3,7 @@ FROM mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm AS base_build
 RUN apt update && sudo apt install -y pipx
 USER node
 RUN pipx ensurepath && pipx install poetry
+RUN npm install -g jest-cli
 
 FROM base_build_image AS final_img
 USER root
