@@ -21,3 +21,4 @@ pr_statistics.json
 /poetry.toml
 node_modules
 test-report.html
+labeler-rules.yml
