@@ -20,8 +20,7 @@ If you open this project in VSCode, install the [Devcontainers plugin](https://c
 ### 2. Initialize Submodule
 The `labeler_v5` directory is a git submodule. Run the following command to pull its content:
 ```bash
-cd labeler_v5
-git pull
+git pull --recurse-submodules
 ```
 
 ### 3. Generate PR Statistics
